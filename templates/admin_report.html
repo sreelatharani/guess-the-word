@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Report</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(270deg, #1e3c72, #2a5298, #1e3c72);
+            background-size: 600% 600%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .report {
+            position: relative;
+            background-color: rgba(255,255,255,0.95);
+            padding: 40px 60px;
+            border-radius: 15px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            color: #111111;
+            text-align: center;
+            z-index: 2;
+        }
+
+        a {
+            display: block;
+            margin-top: 20px;
+            color: black;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        /* Floating symbols */
+        .float-symbol {
+            position: absolute;
+            font-size: 24px;
+            animation: float 6s infinite linear;
+            opacity: 0.8;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) translateX(0) rotate(0deg);
+            }
+            100% {
+                transform: translateY(-50px) translateX(100px) rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="report">
+        <h2>Admin Report - {{ today }}</h2>
+        <!--<p>Total Users: {{ total_users }}</p>
+        <p>Correct guesses today: {{ correct_guesses }}</p>-->
+        <a href="{{ url_for('admin_user_report') }}">View Per-User Report</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+
+    <!-- Floating symbols -->
+    <div class="float-symbol" style="left: 10%; animation-duration: 5s;">⭐</div>
+    <div class="float-symbol" style="left: 30%; animation-duration: 7s;">🎯</div>
+    <div class="float-symbol" style="left: 50%; animation-duration: 6s;">💡</div>
+    <div class="float-symbol" style="left: 70%; animation-duration: 8s;">🚀</div>
+    <div class="float-symbol" style="left: 90%; animation-duration: 5.5s;">📊</div>
+</body>
+</html>

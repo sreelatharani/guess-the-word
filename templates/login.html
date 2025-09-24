@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login - Guess the Word</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    min-height: 100vh;
+    background: linear-gradient(to right, #a1c4fd, #c2e9fb);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden; /* prevent scroll caused by floating letters/bubbles */
+}
+
+/* Floating letters container */
+#floating-letters {
+    position: fixed; /* fixed keeps it in viewport and doesn't affect layout */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* so clicks pass through */
+    z-index: 1;
+}
+
+/* Each floating letter */
+.floating-letter {
+    position: absolute;
+    font-size: 20px;
+    font-weight: bold;
+    color: rgba(255,255,255,0.7);
+    animation: floatLetter 4s linear forwards;
+}
+
+@keyframes floatLetter {
+    0% { transform: translateY(0) scale(1); opacity: 1; }
+    100% { transform: translateY(-100vh) scale(1.5); opacity: 0; }
+}
+
+
+/* Floating bubbles */
+.bubble {
+    position: fixed; /* also fixed so bubbles don't affect layout */
+    border-radius: 50%;
+    opacity: 0.3;
+    animation: float 10s infinite;
+    z-index: 0;
+}
+
+
+        /* Floating bubbles */
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float 10s infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-50px) scale(1.2); }
+            100% { transform: translateY(0) scale(1); }
+        }
+        
+
+        form {
+    background: linear-gradient(135deg, #f9f1ff, #d0f0fd); /* soft gradient matching background */
+    padding: 50px 60px;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    text-align: center;
+    position: relative;
+    z-index: 2;
+    width: 320px;
+    border: 2px solid rgba(255,255,255,0.3); /* subtle border */
+    backdrop-filter: blur(10px); /* adds soft blur effect */
+}
+h2 {
+    color: #4facfe; /* theme color for the game */
+    margin-bottom: 30px;
+}
+input {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    margin: 15px 0;
+    border: 2px solid #4facfe;
+    border-radius: 10px;
+    font-size: 16px;
+    transition: 0.3s;
+    background: rgba(255, 255, 255, 0.8); /* softer input bg */
+}
+input:focus {
+    border-color: #00f2fe;
+    outline: none;
+    box-shadow: 0 0 10px rgba(79,172,254,0.5);
+}
+button {
+    background: linear-gradient(to right, #00f2fe, #4facfe);
+    color: #fff;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+button:hover {
+    background: linear-gradient(to right, #4facfe, #00f2fe);
+}
+
+
+        a {
+            display: block;
+            margin-top: 15px;
+            color: #0072ff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .message { 
+            color: #ff5555; 
+            margin-bottom: 10px; 
+            font-size: 14px;
+        }
+        .show-password {
+    display: flex;
+    align-items: center;
+    margin-top: -10px;
+    font-size: 14px;
+    color: #555;
+    gap: 5px; /* small space between checkbox and label */
+}
+
+.show-password input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+.floating-letter {
+    position: absolute;
+    font-size: 20px;
+    font-weight: bold;
+    color: rgba(255,255,255,0.7);
+    pointer-events: none;
+    animation: floatLetter 4s linear forwards;
+}
+
+@keyframes floatLetter {
+    0% { transform: translateY(0) scale(1); opacity: 1; }
+    100% { transform: translateY(-150px) scale(1.5); opacity: 0; }
+}
+
+
+    </style>
+</head>
+<body>
+    <!-- Floating bubbles -->
+    <div class="bubble" style="width:60px; height:60px; top:50px; left:30px; background:#fff;"></div>
+    <div class="bubble" style="width:40px; height:40px; top:150px; right:50px; background:#a1c4fd;"></div>
+    <div class="bubble" style="width:50px; height:50px; bottom:80px; left:120px; background:#c2e9fb;"></div>
+    <div id="floating-letters"></div>
+
+    <form method="POST">
+        <h2>Login</h2>
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for msg in messages %}
+              <div class="message">{{ msg }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <input type="text" name="username" placeholder="Username" required>
+        <input type="password" id="password" name="password" placeholder="Password" required>
+
+        <div class="show-password">
+    <input type="checkbox" id="showPwd" onclick="togglePassword()">
+    <label for="showPwd">Show Password</label>
+</div>
+
+        </label>
+
+        <button type="submit">Login</button>
+        <a href="{{ url_for('register') }}">Register Here</a>
+    </form>
+
+    <script>
+        function togglePassword() {
+            var pwd = document.getElementById("password");
+            if (pwd.type === "password") {
+                pwd.type = "text";
+            } else {
+                pwd.type = "password";
+            }
+        }
+    // JavaScript to randomly generate letters
+const lettersContainer = document.getElementById("floating-letters");
+const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+function createLetter() {
+    const span = document.createElement("span");
+    span.classList.add("floating-letter");
+    span.textContent = alphabet[Math.floor(Math.random() * alphabet.length)];
+    
+    // Random position on screen
+    span.style.left = Math.random() * window.innerWidth + "px"; // random x position
+    span.style.top = window.innerHeight + "px"; // start from bottom
+
+    
+    lettersContainer.appendChild(span);
+
+    // Remove letter after animation ends
+    setTimeout(() => {
+        span.remove();
+    }, 4000); // match animation duration
+}
+
+// Create letters every 300ms
+setInterval(createLetter, 300);
+
+    </script>
+</body>
+</html>

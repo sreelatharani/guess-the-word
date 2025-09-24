@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin User Report</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .report {
+            background-color: rgba(0, 0, 0, 0.6); /* darker for contrast */
+            backdrop-filter: blur(10px);
+            padding: 30px 50px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            color: #fff;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        h2, h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 700;
+            color: #ffeb3b; /* yellow headers for contrast */
+        }
+
+        select, input[type=submit] {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 10px;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        input[type=submit] {
+            background-color: #ffd700;
+            color: #000;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        input[type=submit]:hover {
+            background-color: #ffb300;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            color: #fff;
+        }
+
+        th, td {
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 12px;
+            text-align: center;
+        }
+
+        th {
+            background-color: rgba(255, 255, 255, 0.15);
+            font-weight: 600;
+        }
+
+        td {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .chart-container {
+            margin-top: 30px;
+        }
+
+        .report-links {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+        }
+
+        .report-links a {
+            color: #ffd700;
+            font-weight: 600;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .report-links a:hover {
+            color: #ffb300;
+        }
+
+        p.no-games {
+            color: #ffeb3b;
+            font-weight: bold;
+            font-size: 18px;
+            text-align: center;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+<div class="report">
+    <h2>Admin User Report</h2>
+
+    <form method="POST">
+        <label for="user">Select User:</label>
+        <select name="user_id" id="user">
+            {% for user in users %}
+            <option value="{{ user.id }}" {% if selected_user and selected_user.id == user.id %}selected{% endif %}>
+                {{ user.username }}
+            </option>
+            {% endfor %}
+        </select>
+        <input type="submit" value="View Report">
+    </form>
+
+    {% if selected_user %}
+        <h3>Report for {{ selected_user.username }}</h3>
+
+        {% if no_games_played %}
+            <p class="no-games">This player hasn't played any games yet! 😔</p>
+        {% else %}
+
+            <!-- Store report data in a data attribute -->
+            <div id="chart-data" data-report='{{ report_data | tojson | safe }}'></div>
+
+            <!-- Chart -->
+            <div class="chart-container">
+                <canvas id="attemptsChart"></canvas>
+            </div>
+
+            <!-- Table -->
+            <table>
+                <tr>
+                    <th>Date</th>
+                    <th>Word</th>
+                    <th>Attempts</th>
+                    <th>Won</th>
+                    <th>Correct Guesses</th>
+                </tr>
+                {% for row in report_data %}
+                <tr>
+                    <td>{{ row.date }}</td>
+                    <td>{{ row.word }}</td>
+                    <td>{{ row.attempts }}</td>
+                    <td>{{ "Yes" if row.won else "No" }}</td>
+                    <td>{{ row.correct_guesses }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+
+            <!-- Dynamic Chart JS -->
+            <script>
+                const reportDiv = document.getElementById('chart-data');
+                const reportData = JSON.parse(reportDiv.dataset.report);
+
+                const labels = reportData.map(r => r.date);
+                const attempts = reportData.map(r => r.attempts);
+
+                const ctx = document.getElementById('attemptsChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Attempts per Game',
+                            data: attempts,
+                            backgroundColor: 'rgba(255, 193, 7, 0.7)', // amber
+                            borderColor: '#ffc107',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { labels: { color: '#fff', font: { weight: 600 } } }
+                        },
+                        scales: {
+                            x: { ticks: { color: '#fff', font: { weight: 600 } } },
+                            y: { beginAtZero: true, ticks: { color: '#fff', font: { weight: 600 } } }
+                        }
+                    }
+                });
+            </script>
+
+        {% endif %}
+    {% endif %}
+
+    <!-- Links at bottom corners -->
+    <div class="report-links">
+        <a href="{{ url_for('dashboard') }}">Back to Dashboard</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+</div>
+</body>
+</html>
