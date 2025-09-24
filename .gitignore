@@ -1,4 +1,4 @@
-# Ignore virtual environment and cache folders
 venv/
 __pycache__/
 instance/
+*.pyc
