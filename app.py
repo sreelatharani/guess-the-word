@@ -285,7 +285,7 @@ def admin_user_report():
             for g in games:
                 correct_guesses = Guess.query.filter_by(game_id=g.id).filter(Guess.guess_text == g.word.value).count()
                 report_data.append({
-                    'date': g.started_at.date(),
+                    'date': g.started_at.date().isoformat(),
                     'word': g.word.value,
                     'attempts': g.attempts,
                     'won': g.won,
